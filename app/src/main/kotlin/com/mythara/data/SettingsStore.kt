@@ -31,18 +31,18 @@ import javax.inject.Singleton
  *   generation, rotation, and Keystore-backed wrapping.
  * - Region and model are stored in plaintext — not sensitive, and
  *   needed pre-decryption to render Settings.
- * - The Tink keyset itself lives in `mythara_master_keyset` SharedPreferences,
+ * - The Tink keyset itself lives in `mythara_master_keyset` SharedPreferences
  *   wrapped by an Android Keystore key with alias `mythara_master_key`.
  */
 @Singleton
 class SettingsStore @Inject constructor(
     @ApplicationContext private val ctx: Context,
 ) {
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "mythara_settings")
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
     private val keyApiKeyEncrypted = stringPreferencesKey("apiKey.encrypted")
     /** Captured MiniMax web-session cookies (encrypted JSON
-     *  `{token, groupId, expiresAtMs}`). Used by MiniMaxUsageClient
+             *  `{token, groupId, expiresAtMs}`). Used by MiniMaxUsageClient
      *  to authenticate against the same surface the platform web
      *  dashboard uses, since Bearer auth gives a different scoped
      *  view than the user's signed-in browser session. */
@@ -76,15 +76,14 @@ class SettingsStore @Inject constructor(
     private val aead: Aead by lazy {
         AeadConfig.register()
         AndroidKeysetManager.Builder()
-            .withSharedPref(ctx, "mythara_master_keyset", "mythara_master_keyset_prefs")
+            .withSharedPref(ctx, "mythara_master_keyset", "mythara_master_key")
             .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
             .withMasterKeyUri("android-keystore://mythara_master_key")
             .build()
             .keysetHandle
             .getPrimitive(Aead::class.java)
     }
-
-    fun apiKeyFlow(): Flow<String?> = ctx.dataStore.data.map { prefs ->
+      fun apiKeyFlow(): Flow<String?> = ctx.dataStore.data.map { prefs ->
         prefs[keyApiKeyEncrypted]?.let { tryDecrypt(it) }
     }
 
@@ -126,7 +125,7 @@ class SettingsStore @Inject constructor(
     suspend fun setMiniMaxWebSession(session: MiniMaxWebSession) {
         val plain = webSessionJson.encodeToString(MiniMaxWebSession.serializer(), session)
         val ct = aead.encrypt(plain.toByteArray(Charsets.UTF_8), null)
-        ctx.dataStore.edit { it[keyMiniMaxWebSessionEncrypted] = Base64.encodeToString(ct, Base64.NO_WRAP) }
+             ctx.dataStore.edit { it[keyMiniMaxWebSessionEncrypted] = Base64.encodeToString(ct, Base64.NO_WRAP) }
     }
 
     suspend fun clearMiniMaxWebSession() {
@@ -169,7 +168,7 @@ class SettingsStore @Inject constructor(
     }
 
     suspend fun setElevenLabsKey(plain: String) {
-        if (plain.isBlank()) {
+              if (plain.isBlank()) {
             ctx.dataStore.edit { it.remove(keyElevenLabsKeyEncrypted) }
             return
         }
@@ -236,7 +235,7 @@ class SettingsStore @Inject constructor(
         val apiKey: String?,
         val region: Region,
         val model: String,
-        /** Optional Gemini vision key. Null means we fall back to MiniMax-VL-01. */
+        /** Optional Gemini vision key. Null means we fall back to MiniMax-VL. */
         val geminiKey: String? = null,
         /** Optional ElevenLabs TTS key. Null disables the ElevenLabs route. */
         val elevenLabsKey: String? = null,
@@ -255,8 +254,8 @@ class SettingsStore @Inject constructor(
 
     companion object {
         /**
-         * Default = M2.7. The function-calling guide
-         * (platform.minimax.io/docs/guides/text-m2-function-call) explicitly
+               * Default = M2.7. The function-calling guide
+         * (platform.minimax.io/docs/guides/text-m2-function-call) explicit
          * cites M2.7 for "exceptional Tool Use capabilities" — the right
          * default for an agentic runtime. Users who want faster/cheaper
          * can pick a highspeed or older variant in Settings.
@@ -269,12 +268,58 @@ class SettingsStore @Inject constructor(
          * this endpoint and are intentionally excluded.
          */
         val SUPPORTED_MODELS: List<String> = listOf(
+            // GROQ (free tier — 30 RPM / 6K TPM / 1K RPD)
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.6-27b",
+            "groq/compound",
+            "groq/compound-mini",
+
+            // OPENROUTER :free (15 model — valid Juli 2026)
+            "openrouter/free",
+            "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "nvidia/nemotron-3-super-120b-a12b:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "nvidia/nemotron-nano-12b-v2-vl:free",
+            "nvidia/nemotron-nano-9b-v2:free",
+            "nvidia/nemotron-3.5-content-safety:free",
+            "google/gemma-4-31b-it:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "openai/gpt-oss-20b:free",
+            "cohere/north-mini-code:free",
+            "poolside/laguna-m.1:free",
+            "poolside/laguna-xs-2.1:free",
+            "tencent/hy3:free",
+
+            // SAMBANOVA (free tier — 10-30 RPM, context 8K-64K)
+            "Meta-Llama-3.3-70B-Instruct",
+            "DeepSeek-V3.2",
+            "DeepSeek-V3.1",
+            "gemma-4-31B-it",
+            "gpt-oss-120b",
             "MiniMax-M2.7",
-            "MiniMax-M2.7-highspeed",
-            "MiniMax-M2.5",
-            "MiniMax-M2.5-highspeed",
-            "MiniMax-M2.1",
-            "MiniMax-M2.1-highspeed",
+
+            // Z.AI / GLM (free tier — ~1.000 req/hari, context 200K)
+            "glm-4.7",
+            "glm-4.6",
+            "glm-4.5",
+            "glm-4.5-air",
+            "glm-5",
+            "glm-5-turbo",
+            "glm-5.1",
+            "glm-5.2",
+
+            // CEREBRAS (free tier — 1M token/hari, context 8K/131K)
+            "gpt-oss-120b",
+            "glm-4.7",
+
+            // GOOGLE AI STUDIO (free tier — ~1.500 req/hari, 1M token/min)
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash-lite-preview-02-05",
+            "gemini-1.5-flash",
         )
 
         /**
