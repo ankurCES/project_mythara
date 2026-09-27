@@ -1,17 +1,14 @@
 package com.mythara.minimax
 
-/**
- * MiniMax has two distinct deployments with non-interchangeable API keys.
- * Pick one explicitly in Settings — guessing is the #1 cause of bogus
- * "invalid api key" errors (code 2049).
- *
- * The OpenAI-compatible chat endpoint lives at `{baseUrl}chat/completions`
- * regardless of region. Speech (T2A / STT) and any future endpoints follow
- * the same `{baseUrl}<path>` shape.
- */
 enum class Region(val label: String, val baseUrl: String) {
     Global("Global (minimax.io)", "https://api.minimax.io/v1/"),
-    China ("China (minimaxi.com)", "https://api.minimaxi.com/v1/");
+    China ("China (minimaxi.com)", "https://api.minimaxi.com/v1/"),
+    Groq("Groq (free tier)", "https://api.groq.com/openai/v1/"),
+    OpenRouter("OpenRouter (free tier)", "https://openrouter.ai/api/v1/"),
+    SambaNova("SambaNova (free tier)", "https://api.sambanova.ai/v1/"),
+    Zai("z.ai / GLM (free tier)", "https://api.z.ai/api/paas/v4"),
+    Cerebras("Cerebras (free tier)", "https://api.cerebras.ai/v1/"),
+    GoogleAI("Google AI Studio (free tier)", "https://generativelanguage.googleapis.com/v1beta");
 
     companion object {
         val Default: Region = Global
