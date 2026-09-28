@@ -33,7 +33,7 @@ Mythara is a phone OS layer **you sideload as one app**, written in Kotlin + Jet
 - **Private by construction.** No analytics SDKs, no telemetry, no remote logging. Personality analysis happens on-device via a lexical + LLM cascade. Face embeddings + voice samples never leave the phone unless you opt-in to sync them via your own GitHub repo.
 - **Bring your own model.** First-class support for MiniMax M2.x as a cheap, capable backbone today; clean abstractions so you can swap to a local Gemma / Llama / Qwen / DeepSeek runtime tomorrow. The agent loop is model-agnostic.
 
-> Built by [@ankurCES](https://github.com/ankurCES) (Ankur Nair) — engineered using **Lumi**, the multi-agent platform Ankur built at [CES](https://www.cesltd.com). Mythara is the field-deployed test bed for what a personal AI looks like when you own the stack end-to-end.
+> Built by [@ankurCES](https://github.com/ankurCES) (Ankur Nair) — engineered using **Lumi**, the multi-agent platform built at [CES](https://www.cesltd.com). Mythara is the field-deployed test bed for what a personal AI looks like when you own the stack end-to-end.
 
 ---
 
