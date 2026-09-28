@@ -1,3 +1,7 @@
+#IMPORTANT
+
+This repo is no longer being maintained. For a better version use the **Mahout** [Repo](https://github.com/ankurCES/Mahout)
+
 # Project M.Y.T.H.A.R.A
 
 > **M**ind **Y**oked **T**onal **H**aptic **A**daptive **R**esonant **A**ssistant
