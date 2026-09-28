@@ -1,6 +1,6 @@
 # ⚠️ IMPORTANT Information
 
-This repo is no longer being maintained. For a better version use the **Mahout** [Repo](https://github.com/ankurCES/Mahout)
+This repo is no longer being maintained. For a better version use the **Mahout** [Repo](https://github.com/ankurCES/Mahout) - An agentic on device light Harness - N8N X Tasker
 
 # Project M.Y.T.H.A.R.A
 
